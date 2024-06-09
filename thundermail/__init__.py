@@ -1,1 +1,1 @@
-from thundermail import ThunderMail
+from .thundermail import ThunderMail

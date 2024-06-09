@@ -3,6 +3,7 @@
 import os
 import requests
 import json
+from exceptions import MissingApiKeyError, raise_for_code_and_type
 
 class ThunderMail:
     """
@@ -12,7 +13,7 @@ class ThunderMail:
         key (str, optional): The API key to authenticate requests. If not provided, the key will be retrieved from the THUNDERMAIL_API_KEY environment variable.
     
     Raises:
-        ValueError: If the API key is missing and not provided in the constructor.
+        MissingApiKeyError: If the API key is missing and not provided in the constructor.
     Attributes:
         base_url (str): The base URL of the ThunderMail API. Defaults to 'https://thundermail.vercel.app/api/v1'.
         headers (dict): The headers to be included in API requests, including the authorization header with the API key.
@@ -24,7 +25,7 @@ class ThunderMail:
     def __init__(self, key: (str | None)) -> None:
         self.key = key or os.getenv('THUNDERMAIL_API_KEY')
         if not self.key:
-            raise ValueError('Missing API key. Pass it to the constructor `ThunderMail("tim_1234567890")`')
+            raise MissingApiKeyError('Missing API key. Pass it to the constructor `ThunderMail("tim_1234567890")`', 'missing_api_key', '401')
         self.base_url = os.getenv('THUNDERMAIL_BASE_URL', 'https://thundermail.vercel.app/api/v1')
         self.headers = {'Authorization': f'Bearer {self.key}'}
 
@@ -43,10 +44,12 @@ class ThunderMail:
         """
         url = f'{self.base_url}/emails'
         data = {'from': from_email, 'to': to, 'subject': subject, 'html': html}
-        response = requests.post(url, headers=self.headers, json=data, timeout=10)
-        response.raise_for_status()
+        try:
+            response = requests.post(url, headers=self.headers, json=data, timeout=10)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            raise_for_code_and_type(e.response.status_code, e.response.json().get('error', {}).get('type', ''), e.response.json().get('message', ''))
         return response.json()
-
 
     def get(self, email_id):
         """
@@ -59,8 +62,10 @@ class ThunderMail:
             requests.exceptions.HTTPError: If the API request fails.
         """
         url = f'{self.base_url}/emails/{email_id}'
-        response = requests.get(url, headers=self.headers, timeout=10)
-        response.raise_for_status()
+        try:
+            response = requests.get(url, headers=self.headers, timeout=10)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            raise_for_code_and_error_type(e.response.status_code, e.response.json().get('error', {}).get('type', ''), e.response.json().get('message', ''))
         get_response = json.dumps(response.json(), indent=4)
         return get_response
-    
