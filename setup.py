@@ -2,7 +2,7 @@
 
 from setuptools import find_packages, setup
 
-from thundermail.version import get_version
+from version import get_version
 
 install_requires = open("requirements.txt").readlines()
 
@@ -27,5 +27,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
     ],
 )
