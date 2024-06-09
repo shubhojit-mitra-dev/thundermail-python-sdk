@@ -3,7 +3,7 @@
 import os
 import requests
 import json
-from exceptions import MissingApiKeyError, raise_for_code_and_type
+from .exceptions import MissingApiKeyError, raise_for_code_and_type
 
 class ThunderMail:
     """
@@ -66,6 +66,6 @@ class ThunderMail:
             response = requests.get(url, headers=self.headers, timeout=10)
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            raise_for_code_and_error_type(e.response.status_code, e.response.json().get('error', {}).get('type', ''), e.response.json().get('message', ''))
+            raise_for_code_and_type(e.response.status_code, e.response.json().get('error', {}).get('type', ''), e.response.json().get('message', ''))
         get_response = json.dumps(response.json(), indent=4)
         return get_response
