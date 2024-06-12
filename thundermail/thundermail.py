@@ -29,27 +29,48 @@ class ThunderMail:
         self.base_url = os.getenv('THUNDERMAIL_BASE_URL', 'https://thundermail.vercel.app/api/v1')
         self.headers = {'Authorization': f'Bearer {self.key}'}
 
-    def send(self, from_email, to, subject, html):
+
+    def send(self, **kwargs):
         """
         Sends an email using the ThunderMail API.
         Args:
-            from_email (str): The email address of the sender.
-            to (str or list): The email address(es) of the recipient(s). Can be a single email address or a list of email addresses.
-            subject (str): The subject of the email.
-            html (str): The HTML content of the email.
+            kwargs (dict): A dictionary containing the following keys:
+                'from' (str): The email address of the sender.
+                'to' (str or list): The email address(es) of the recipient(s). Can be a single email address or a list of email addresses.
+                'subject' (str): The subject of the email.
+                'html' or 'text' (str): The HTML or text content of the email. Only one of these should be provided.
         Returns:
             dict: The JSON response from the ThunderMail API.
         Raises:
             requests.exceptions.HTTPError: If the API request fails.
+            ValueError: If the provided arguments are not valid.
         """
+        valid_keys = ['from', 'to', 'subject', 'html', 'text']
+        required_keys = ['from', 'to', 'subject']
+        content_keys = ['html', 'text']
+
+        if not all(key in kwargs for key in required_keys):
+            raise ValueError(f"Missing one or more required keys: {', '.join(required_keys)}")
+
+        if not any(key in kwargs for key in content_keys):
+            raise ValueError(f"Must provide at least one of the following keys: {', '.join(content_keys)}")
+
+        if all(key in kwargs for key in content_keys):
+            raise ValueError(f"Cannot provide both 'html' and 'text' keys. Only one is allowed.")
+
+        if any(key not in valid_keys for key in kwargs):
+            raise ValueError(f"Invalid key provided. Valid keys are: {', '.join(valid_keys)}")
+
         url = f'{self.base_url}/emails'
-        data = {'from': from_email, 'to': to, 'subject': subject, 'html': html}
+        data = {key: kwargs[key] for key in kwargs if key in valid_keys}
+
         try:
             response = requests.post(url, headers=self.headers, json=data, timeout=10)
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
             raise_for_code_and_type(e.response.status_code, e.response.json().get('error', {}).get('type', ''), e.response.json().get('message', ''))
         return response.json()
+
 
     def get(self, email_id):
         """
