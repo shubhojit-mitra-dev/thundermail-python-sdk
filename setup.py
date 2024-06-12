@@ -15,6 +15,7 @@ setup(
     author="shubhojit-mitra-dev",
     author_email="mitrashubhojit2005@gmail.com",
     url="https://github.com/shubhojit-mitra-dev/thundermail-python-sdk/",
+    install_requires=install_requires,
     python_requires=">=3.7",
     keywords=["email","email platform"],
     classifiers=[
