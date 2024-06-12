@@ -21,12 +21,13 @@ thundermail = Thundermail('tim_12345678');
 Send your first email:
 
 ```python
-response = thundermail.send({
+email_data = {
     'from' = 'you@example.com',
     'to' = 'user@google.com',
     'subject' = 'hello world',
     'html' = '<strong>it works!</strong>'
-})
+}
+response = thundermail.send(**email_data)
 ```
 
 
