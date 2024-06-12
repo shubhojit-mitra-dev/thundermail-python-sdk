@@ -12,7 +12,7 @@ pip install thundermail
 First, you need to get an API key, which is available in the [Thunder Mail Dashboard](https://thundermail.vercel.app/dashboard).
 
 ```python
- from thundermail import ThunderMail;
+from thundermail import ThunderMail;
 thundermail = Thundermail('tim_12345678');
 ```
 
