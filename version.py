@@ -1,5 +1,6 @@
-__version__ = "1.0.0"
+__version__ = "1.1.0"
+
 
 def get_version():
-    """ returns the version of thundermail sdk """
+    """returns the version of thundermail sdk"""
     return __version__
