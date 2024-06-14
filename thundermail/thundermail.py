@@ -1,6 +1,7 @@
 # thundermail.py
 
 import os
+import html
 import requests
 import json
 from .exceptions import MissingApiKeyError, raise_for_code_and_type
@@ -55,11 +56,12 @@ class ThunderMail:
         if not any(key in kwargs for key in content_keys):
             raise ValueError(f"Must provide at least one of the following keys: {', '.join(content_keys)}")
 
-        if all(key in kwargs for key in content_keys):
-            raise ValueError(f"Cannot provide both 'html' and 'text' keys. Only one is allowed.")
-
         if any(key not in valid_keys for key in kwargs):
             raise ValueError(f"Invalid key provided. Valid keys are: {', '.join(valid_keys)}")
+        
+        if 'html' in kwargs and not html:
+            kwargs['text'] = kwargs['html']
+            del kwargs['html']
 
         url = f'{self.base_url}/emails'
         data = {key: kwargs[key] for key in kwargs if key in valid_keys}
